@@ -9,7 +9,7 @@ interface PropsInterface {
   Dispatch: any;
 }
 
-class Page extends React.Component<PropsInterface, {}> {
+class Default extends React.Component<PropsInterface, {}> {
   constructor(Props: PropsInterface) {
     super(Props);
     this.state = {};
@@ -22,13 +22,13 @@ class Page extends React.Component<PropsInterface, {}> {
   public render() {
     return (
       <>
-        <h1>Preview</h1>
+        <h1>Default page</h1>
         <button
           onClick={() => {
             this.props.Dispatch(Middleware.Modal.open("Default"));
           }}
         >
-          Open rules modal
+          Open modal
         </button>
       </>
     );
@@ -43,5 +43,5 @@ export default withRouter(
     (Dispatch: any) => {
       return { Dispatch: (action: any) => Dispatch(action) };
     }
-  )(Page)
+  )(Default)
 );

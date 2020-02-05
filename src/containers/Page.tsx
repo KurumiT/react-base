@@ -15,7 +15,7 @@ class Page extends React.Component<PropsInterface, {}> {
       <>
         {true ? (
           <>
-            <Route path="/" component={Component.Page.Page} />
+            <Route path="/" component={Component.Page.Default} />
           </>
         ) : (
           <>Загрузка...</>
