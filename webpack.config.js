@@ -18,7 +18,7 @@ const config = {
   //   path: path.resolve(__dirname, "dist"),
   //   filename: "[name].[contenthash].js",
   // },
-  devtool: 'inline-source-map',
+  devtool: "inline-source-map",
   module: {
     rules: [
       {
@@ -53,9 +53,10 @@ const config = {
           {
             loader: "css-loader",
             options: {
-              sourceMap: true,
+              importLoaders: 1,
             },
           },
+          "postcss-loader",
           {
             loader: "sass-loader",
             options: {
