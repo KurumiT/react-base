@@ -1,118 +1,149 @@
-const { resolve } = require("path");
 const webpack = require("webpack");
-const dotenv = require("dotenv");
-const ExtractTextPlugin = require("extract-text-webpack-plugin");
-
+const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
-const TerserWebpackPlugin = require("terser-webpack-plugin");
+const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const { CleanWebpackPlugin } = require("clean-webpack-plugin");
+const dotenv = require("dotenv");
 
-var devFlagPlugin = new webpack.DefinePlugin({
-  __DEV__: JSON.stringify(JSON.parse(process.env.DEBUG || "false")),
-});
-
-const isProd = process.env.NODE_ENV === "production";
-
-const fileEnv = dotenv.config({
-  path: isProd ? "./environments/.env.production" : "./environments/.env.development",
-}).parsed;
+const fileEnv = dotenv.config({ path: ".env" }).parsed;
 const envKeys = Object.keys(fileEnv).reduce((prev, next) => {
   prev[`process.env.${next}`] = JSON.stringify(fileEnv[next]);
   return prev;
 }, {});
 
 const config = {
-  mode: isProd ? "production" : "development",
-  entry: {
-    index: ["babel-polyfill", "./src/index.tsx"],
-  },
-  plugins: [
-    new webpack.HashedModuleIdsPlugin(), // в результате хэши не будут неожиданно меняться
-  ],
-  output: {
-    path: resolve(__dirname, "dist"),
-    filename: "[name].[hash].js",
-    publicPath: "/",
-  },
-  resolve: {
-    extensions: [".js", ".jsx", ".ts", ".tsx", ".css", ".sass"],
-  },
+  entry: ["react-hot-loader/patch", "./src/Client.tsx"],
+  // output: {
+  //   path: path.resolve(__dirname, "dist"),
+  //   filename: "[name].[contenthash].js",
+  // },
+  devtool: 'inline-source-map',
   module: {
     rules: [
       {
-        test: /\.(tsx?|jsx?)$/,
-        use: "babel-loader",
+        test: /\.css$/,
+        use: [
+          MiniCssExtractPlugin.loader,
+          {
+            loader: "css-loader",
+            options: {
+              importLoaders: 1,
+            },
+          },
+          "postcss-loader",
+        ],
+      },
+      {
+        test: /\.ts(x)?$/,
+        loader: "ts-loader",
+        // use: {
+        //   loader: "babel-loader",
+        //   options: {
+        //     presets: [["@babel/preset-env", { modules: false }]],
+        //     plugins: ["@babel/plugin-syntax-dynamic-import"],
+        //   },
+        // },
         exclude: /node_modules/,
       },
       {
-        test: /\.(sass|css)$/,
-        use: ExtractTextPlugin.extract({
-          fallback: "style-loader",
-          use: ["css-loader", "sass-loader"],
-        }),
+        test: /\.sass$/,
+        use: [
+          MiniCssExtractPlugin.loader,
+          {
+            loader: "css-loader",
+            options: {
+              sourceMap: true,
+            },
+          },
+          {
+            loader: "sass-loader",
+            options: {
+              sourceMap: true,
+            },
+          },
+        ],
       },
       {
-        test: /\.(png|jpg|svg|ttf|eot|woff|woff2)$/,
-        loader: "file-loader",
-        options: {
-          name: "[path][name].[hash].[ext]",
-        },
-      },
-      {
-        test: /\.otf$/,
-        loader: "file-loader",
-        options: {
-          name: "[path][name].[hash].[ext]",
-        },
+        test: /\.(svg|jpe?g|png|ttf|eot|woff|woff2)$/i,
+        use: [
+          {
+            loader: "url-loader",
+            options: {
+              esModule: false,
+              name: "[path][name].[hash].[ext]",
+            },
+          },
+        ],
       },
     ],
   },
+  resolve: {
+    extensions: [".js", ".jsx", ".tsx", ".ts"],
+    alias: {
+      "react-dom": "@hot-loader/react-dom",
+      "@public": path.join(__dirname, "", "public"),
+      "@models": path.join(__dirname, "", "src/models"),
+      "@components": path.join(__dirname, "", "src/components"),
+      "@pages": path.join(__dirname, "", "src/pages"),
+      "@helpers": path.join(__dirname, "", "src/utils"),
+      "@store": path.join(__dirname, "", "src/store/*"),
+      "@middlewares": path.join(__dirname, "", "src/store/middlewares"),
+      "@actions": path.join(__dirname, "", "src/store/actions"),
+      "@reducers": path.join(__dirname, "", "src/store/reducers"),
+      "@types": path.join(__dirname, "", "src/types"),
+      "@containers": path.join(__dirname, "", "src/containers"),
+    },
+  },
   plugins: [
-    new webpack.HotModuleReplacementPlugin(),
-    new webpack.NoEmitOnErrorsPlugin(),
-    new webpack.DefinePlugin({
-      __DEV__: JSON.stringify(JSON.parse(process.env.DEBUG || "false")),
-    }),
     new HtmlWebpackPlugin({
-      title: fileEnv.SITE_NAME,
-      template: "src/index.html",
+      favicon: "./src/favicon.ico",
+      template: "./src/server/Browser.html",
     }),
+    new BundleAnalyzerPlugin({
+      analyzerMode: "static",
+      openAnalyzer: false,
+    }),
+    new MiniCssExtractPlugin(),
+    new CleanWebpackPlugin(),
+    new webpack.ContextReplacementPlugin(/moment[\/\\]locale$/, /ru/),
     new webpack.DefinePlugin(envKeys),
-    new ExtractTextPlugin({
-      filename: "[name].[hash].css",
-    }),
   ],
-};
-
-if (isProd) {
-  config.optimization = {
-    minimizer: [new TerserWebpackPlugin()],
+  optimization: {
     runtimeChunk: "single",
     splitChunks: {
-      chunks: "all",
-      maxInitialRequests: Infinity,
-      minSize: 0,
       cacheGroups: {
         vendor: {
           test: /[\\/]node_modules[\\/]/,
-          name(module) {
-            const packageName = module.context.match(/[\\/]node_modules[\\/](.*?)([\\/]|$)/)[1];
-            return `npm.${packageName.replace("@", "")}`;
-          },
+          name: "vendors",
+          chunks: "all",
         },
       },
     },
-  };
-} else {
-  config.devServer = {
-    port: 3000,
-    open: true,
-    hot: true,
+  },
+  devServer: {
+    contentBase: path.join(__dirname, "dist"),
     compress: true,
-    stats: "errors-only",
-    overlay: true,
+    port: 4200,
+    watchContentBase: true,
+    progress: true,
+    hot: true,
+    open: true,
     historyApiFallback: true,
-    contentBase: "./src",
-  };
-}
+  },
+};
 
-module.exports = config;
+module.exports = (env, argv) => {
+  const watchMode = argv.liveReload || false;
+  config.output = {
+    filename: watchMode ? "assets/[name].[hash].js" : "assets/[name].[chunkhash].js",
+    path: path.resolve(__dirname, "dist"),
+    publicPath: "/",
+  };
+
+  // if (argv.hot) {
+  //   // Cannot use 'contenthash' when hot reloading is enabled.
+  //   config.output.filename = "[name].[hash].js";
+  // }
+  return config;
+};

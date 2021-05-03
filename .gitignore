@@ -3,4 +3,10 @@ debug.log
 node_modules
 package-lock.json
 yarn.lock
-dist
+/dist
+/server
+*.css
+*.css.map
+yarn-error.log
+.env
+.idea

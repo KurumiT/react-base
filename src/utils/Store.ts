@@ -1,19 +1,12 @@
-// Redux
-import { combineReducers, createStore, applyMiddleware, compose } from "redux";
-import thunk from "redux-thunk";
+import { combineReducers, configureStore } from "@reduxjs/toolkit";
 
-import * as Actions from "../actions";
-import * as Reducers from "../reducers";
+import * as Reducers from "@reducers/index";
 
-export default class Store {
-  static create() {
-    const composeEnhancers =
-      typeof window === "object" && (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
-        ? (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({})
-        : compose;
-    return createStore(combineReducers(Reducers), composeEnhancers(applyMiddleware(thunk)));
-  }
-  static setToken(Store: any, Token: string | null) {
-    Store.dispatch(Actions.Store.User.setToken(Token !== null ? Token : ""));
-  }
-}
+const store = configureStore({
+  reducer: combineReducers(Reducers),
+  devTools: true,
+});
+
+const dispatch = (action: any) => store.dispatch(action);
+const state = () => store.getState();
+export { store as Store, dispatch as useDispatch, state as useState };

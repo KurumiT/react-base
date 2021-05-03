@@ -1,0 +1,28 @@
+version: "3.6"
+services:
+  #Frontend Node Service
+  frontend:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    env_file: .env
+    container_name: ${APP_NAME}-frontend
+    restart: unless-stopped
+    working_dir: /var/www/frontend
+    tty: true
+    volumes:
+      - ./:/var/www/frontend
+      - frontend_node_modules:/var/www/frontend/node_modules
+    networks:
+      - app-network
+
+#Docker Networks
+networks:
+  app-network:
+    driver: bridge
+
+#Volumes
+volumes:
+  frontend_node_modules:
+    name: ${APP_NAME}-frontend_node_modules
+    driver: local

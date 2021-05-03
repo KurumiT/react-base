@@ -1,0 +1,15 @@
+stages:
+  - develop
+  - production
+develop:
+  stage: develop
+  only:
+    - stage
+  script:
+    - /home/gitlab-runner/stageupdate.sh
+production:
+  stage: production
+  only:
+    - master
+  script:
+    - /home/gitlab-runner/produpdate.sh

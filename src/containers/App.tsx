@@ -1,25 +1,18 @@
 import React from "react";
-import { BrowserRouter } from "react-router-dom";
 import { Provider } from "react-redux";
-import Store from "../utils/Store";
+import { Store } from "@helpers/Store";
 import Modal from "./Modal";
-import Page from "./Page";
+import Router from "./Router";
 
-import "./../../public/style/style.sass";
-
-const store = Store.create();
+import "@public/style/style.sass";
 
 export default class App extends React.Component {
   public render() {
     return (
-      <>
-        <Provider store={store}>
-          <BrowserRouter>
-            <Page />
-            <Modal />
-          </BrowserRouter>
-        </Provider>
-      </>
+      <Provider store={Store}>
+        <Router />
+        <Modal />
+      </Provider>
     );
   }
 }

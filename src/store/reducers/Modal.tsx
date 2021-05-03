@@ -1,12 +1,12 @@
-import * as Action from "../actions";
+import * as Action from "@actions/index";
 
 export default function Modal(state = [], action: any) {
   switch (action.type) {
-    case Action.Store.Modal.OPEN:
+    case Action.Modal.OPEN:
       return [...state, action.data];
-    case Action.Store.Modal.CLOSE:
+    case Action.Modal.CLOSE:
       return [...state.slice(0, -1)];
-    case Action.Store.Modal.CLOSE_ALL:
+    case Action.Modal.CLOSE_ALL:
       return [];
     default:
       return state;
