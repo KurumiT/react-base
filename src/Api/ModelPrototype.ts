@@ -1,4 +1,4 @@
-import axios, { AxiosResponse } from "axios";
+import axios from "axios";
 
 export enum Method {
   GET = 0,
@@ -9,11 +9,12 @@ export enum Method {
 
 export default abstract class ModelPrototype {
   protected Method: Method = 0;
-  protected Url: string = "";
+  protected Url: string | null = null;
 
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
   protected async request(data?: any): Promise<any> {
     try {
-      const url = new URL(process.env.API_URL + this.Url);
+      const url = new URL(process?.env.API_URL + String(this.Url));
       let Response: any;
       switch (this.Method) {
         case Method.GET:
@@ -62,12 +63,12 @@ export default abstract class ModelPrototype {
     }
   }
 
-  protected withUrl(Url: string) {
+  protected withUrl(Url: string): this {
     this.Url = Url;
     return this;
   }
 
-  protected setMethod(Method: Method) {
+  protected setMethod(Method: Method): this {
     this.Method = Method;
     return this;
   }

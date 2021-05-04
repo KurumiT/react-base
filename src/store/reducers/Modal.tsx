@@ -1,6 +1,6 @@
 import * as Action from "@actions/index";
 
-export default function Modal(state = [], action: any) {
+export default (state: unknown[] = [], action: { type: string; data: unknown }): unknown => {
   switch (action.type) {
     case Action.Modal.OPEN:
       return [...state, action.data];
@@ -11,4 +11,4 @@ export default function Modal(state = [], action: any) {
     default:
       return state;
   }
-}
+};

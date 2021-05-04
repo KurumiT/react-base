@@ -7,6 +7,6 @@ const store = configureStore({
   devTools: true,
 });
 
-const dispatch = (action: any) => store.dispatch(action);
-const state = () => store.getState();
+const dispatch = (action: { type: string; data?: unknown }): unknown => store.dispatch(action);
+const state = (): unknown => store.getState();
 export { store as Store, dispatch as useDispatch, state as useState };

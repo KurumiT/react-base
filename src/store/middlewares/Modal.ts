@@ -5,21 +5,21 @@ export default class Modal {
   /**
    * Открываем модалку
    */
-  public static open(modal: string) {
+  public static open(modal: string): void {
     useDispatch(Action.Modal.openModal({ modal }));
   }
 
   /**
    * Закрываем модалку
    */
-  public static close() {
+  public static close(): void {
     useDispatch(Action.Modal.close());
   }
 
   /**
    * Закрываем все модалки
    */
-  public static closeAll() {
+  public static closeAll(): void {
     useDispatch(Action.Modal.closeAll());
   }
 }
