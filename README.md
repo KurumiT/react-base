@@ -1,4 +1,4 @@
-# OTM Summer 2021
+# React App template
 - [Requirements](#requirements)
 - [How to use](#how-to-use)
     - [Development](#development)
